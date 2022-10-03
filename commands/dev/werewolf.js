@@ -59,17 +59,16 @@ const commandData = {
     ]
 };
 
-//TODO Fix!!!
+function commandCallback(interaction){
+    const {getChannelFromId, sendPrivateMessageToUser} = require('../../discord/bot');
 
-async function commandCallback(interaction){
-    //const {getChannel, sendPrivateMessageToUser} = require('../index.js');
     let options = Array.from(interaction.options.data);
-    let channel = await getChannel(options[0].value);
+    let channel = getChannelFromId(options[0].value);
 
     return new Promise((resolve, reject) => {
         if (channel === null || channel === undefined) reject(new Error('Diesen Channel gibt es nicht auf dem Server!'));
 
-        if (channel.type !== "voice"){
+        if (channel.type !== 2){
             resolve({type: "private", content: `Wähle bitte einen Voice-Channel aus!`});
         }else{
             // Get number of players and werewolfs
@@ -79,7 +78,7 @@ async function commandCallback(interaction){
             // Set narrator
             let narrator = interaction.member.user.id;
             if (players.includes(narrator)){
-                players.splice(players.indexOf(narrator), 1);
+               players.splice(players.indexOf(narrator), 1);
             }
 
             // Check if game is playable
@@ -90,6 +89,8 @@ async function commandCallback(interaction){
             // Create narrator-text
             let content = `***Rollen***\n\n`;
 
+            let promiseList = []
+
             // Distribute special-roles
             if (options.length > 2){
                 options.splice(0, 2);
@@ -97,7 +98,7 @@ async function commandCallback(interaction){
                     let randomPlayer = players[Math.floor(Math.random() * players.length)];
                     players.splice(players.indexOf(randomPlayer), 1);
                     content = content + `${options[i].value}: <@${randomPlayer}>\n`;
-                    sendPrivateMessageToUser(randomPlayer, `Du bist **${options[i].value}**!\n`);
+                    promiseList.push(sendPrivateMessageToUser(randomPlayer, `Du bist **${options[i].value}**!\n`));
                 }
                 content = content + `\n`;
             }
@@ -120,17 +121,22 @@ async function commandCallback(interaction){
                     otherWolfsText = otherWolfsText + `<@${otherWolfsArr[j]}>\n`;
                 }
 
-                sendPrivateMessageToUser(werewolfs[i], `Du bist **Werwolf**!\nZusammen mit:\n${otherWolfsText}`);
+                promiseList.push(sendPrivateMessageToUser(werewolfs[i], `Du bist **Werwolf**!\nZusammen mit:\n${otherWolfsText}`));
             }
             content = content + `\n`;
 
             // Distribute and contact villager
             for (let i = 0; i < players.length; i++){
-                sendPrivateMessageToUser(players[i], `Du bist **Dorfbewohner**!\n`);
+                promiseList.push(sendPrivateMessageToUser(players[i], `Du bist **Dorfbewohner**!\n`));
                 content = content + `Dorfbewohner: <@${players[i]}>\n`;
             }
 
-            resolve({type: "private", content: content});
+            Promise.all(promiseList).then(() => {
+                resolve({type: "private", content: content});
+            }).catch(err => {
+                resolve({type: "private", content: "Ich konnte einige Nachrichten leider nicht zustellen!"});
+                console.error(err);
+            });
         }
     });
 }

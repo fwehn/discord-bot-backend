@@ -19,7 +19,7 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     if (!commands[interaction.commandName]){
-        // await sendPrivateResponse(interaction, "Sorry, aber mein Schöpfer war dumm!");
+        interaction.reply({content: "Sorry, aber mein Schöpfer war dumm!", ephemeral: true});
         return;
     }
 
@@ -94,6 +94,14 @@ function getServerList(){
     return client.guilds.cache;
 }
 
+function getChannelFromId(channelId){
+    return client.channels.cache.get(channelId);
+}
+
+function sendPrivateMessageToUser(userId, message){
+    return client.users.cache.get(userId).send(message);
+}
+
 module.exports = {
-    registerCommand, unregisterCommand, getServerList, getMemberCount
+    registerCommand, unregisterCommand, getServerList, getMemberCount, getChannelFromId, sendPrivateMessageToUser
 }

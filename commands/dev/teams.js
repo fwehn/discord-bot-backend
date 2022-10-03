@@ -31,19 +31,20 @@ const commandData = {
     ]
 };
 
-//TODO Fix
 async function commandCallback(interaction){
-    const {getChannel} = require('../index.js');
-    let channel = await getChannel(interaction.data.options[1].value);
+    const {getChannelFromId} = require('../../discord/bot');
+
+    let options = Array.from(interaction.options.data);
+    let channel = getChannelFromId(options[1].value);
 
     return new Promise((resolve, reject) => {
         if (channel === null || channel === undefined) reject(new Error('Diesen Channel gibt es nicht auf dem Server!'));
 
-        if (channel.type !== "voice"){
+        if (channel.type !== 2){
             resolve({type: "private", content: `Wähle bitte einen Voice-Channel aus!`});
         }else{
             let content = `***TEAMS***`;
-            let teamNumber= interaction.data.options[0].value;
+            let teamNumber = options[0].value;
             let players = [ ...channel.members.keys() ];
             let overhang = players.length%teamNumber;
             let playerPerTeam = (players.length-overhang)/teamNumber;
