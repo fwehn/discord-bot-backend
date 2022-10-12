@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const bot = require('../discord/bot');
-const commandController = require('../controller/commandController');
-const {basicErrorHandler} = require("../utilityFunctions");
 
 router.get('/', function(req, res) {
     let serverList = {};
@@ -21,15 +19,16 @@ router.get('/', function(req, res) {
 
 });
 
-router.get('/:serverId/commands', (req, res) => {
-    let serverId = req.params['serverId'];
+const commandsRouter = require('./commands');
+router.use('/:serverId/commands', (req, res, next) => {
+    req["serverId"] = req.params["serverId"];
+    next();
+}, commandsRouter);
 
-    commandController.getCommandsFromServer(serverId).then(data => {
-        let activeCommands = Object.keys(data);
-        let inactiveCommands = commandController.getCommandNames().filter(name => !activeCommands.includes(name));
-
-        res.status(200).json({active: activeCommands, inactive: inactiveCommands});
-    }).catch(err => basicErrorHandler(res, err));
-});
+const eventsRouter = require('./events');
+router.use('/:serverId/events', (req, res, next) => {
+    req["serverId"] = req.params["serverId"];
+    next();
+}, eventsRouter);
 
 module.exports = router;

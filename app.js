@@ -1,4 +1,3 @@
-const path = require('path');
 const express = require('express');
 const app = express();
 const logger = require('morgan');
@@ -10,11 +9,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
 const indexRouter = require('./routes/index');
-const commandsRouter = require('./routes/commands');
 const serverRouter = require('./routes/server');
 
 app.use('/', indexRouter);
-app.use('/commands', commandsRouter);
 app.use('/server', serverRouter);
 
 app.listen(process.env.PORT, () => {
