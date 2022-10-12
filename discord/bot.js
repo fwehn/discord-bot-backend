@@ -59,27 +59,6 @@ function handleCommand(interaction){
                 case "private":
                     interaction.reply({content: callbackData.content, ephemeral: true});
                     break;
-        //
-        //         case "channel":
-        //             sendMessageToBotChannel(callbackData.content.announcement);
-        //             sendPrivateResponse(interaction, callbackData.content.response);
-        //             break;
-        //
-        //         case "poll":
-        //             sendWaiting(interaction);
-        //             sendPublicResponse(interaction, callbackData.content)
-        //                 .then(msg => {
-        //                     getMessage(msg.channel_id, msg.id).then(msg => {
-        //                         let emojiList = [`1️⃣`, `2️⃣`,`3️⃣`, `4️⃣`,`5️⃣`, `6️⃣`,`7️⃣`, `8️⃣`,`9️⃣`];
-        //                         // let emojiList = [`<:Stonks3:774964846785069096>`, `2️⃣`,`3️⃣`, `4️⃣`,`5️⃣`, `6️⃣`,`7️⃣`, `8️⃣`,`9️⃣`];
-        //                         for (let i = 0; i < callbackData.options; i++){
-        //                             msg.react(emojiList[i]);
-        //                         }
-        //                     }).catch(console.error);
-        //                 });
-        //
-        //             break;
-        //
                 default:
                     interaction.reply({content: callbackData.content, ephemeral: true});
             }
@@ -106,6 +85,16 @@ function getScheduledEvents(guildId){
     });
 }
 
+function createScheduledEvent(guildId, eventData){
+    return client.guilds.cache.get(guildId).scheduledEvents.create(eventData)
+}
+
+function deleteScheduledEvent(guildId, eventId){
+    console.log(typeof eventId)
+
+    return client.guilds.cache.get(guildId).scheduledEvents.delete(eventId)
+}
+
 module.exports = {
-    registerCommand, unregisterCommand, getServerList, getMemberCount, sendPrivateMessageToUser, getScheduledEvents
+    registerCommand, unregisterCommand, getServerList, getMemberCount, sendPrivateMessageToUser, getScheduledEvents, createScheduledEvent, deleteScheduledEvent
 }
