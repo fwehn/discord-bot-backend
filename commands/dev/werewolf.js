@@ -60,10 +60,10 @@ const commandData = {
 };
 
 function commandCallback(interaction){
-    const {getChannelFromId, sendPrivateMessageToUser} = require('../../discord/bot');
+    const {sendPrivateMessageToUser} = require('../../discord/bot');
 
-    let options = Array.from(interaction.options.data);
-    let channel = getChannelFromId(options[0].value);
+    let options = interaction.options;
+    let channel = options.getChannel('channel', true);
 
     return new Promise((resolve, reject) => {
         if (channel === null || channel === undefined) reject(new Error('Diesen Channel gibt es nicht auf dem Server!'));
@@ -72,7 +72,7 @@ function commandCallback(interaction){
             resolve({type: "private", content: `Wähle bitte einen Voice-Channel aus!`});
         }else{
             // Get number of players and werewolfs
-            let werewolfNumber= options[1].value;
+            let werewolfNumber= options.getInteger('werewolfs', true);
             let players = [ ...channel.members.keys() ];
 
             // Set narrator
@@ -81,9 +81,17 @@ function commandCallback(interaction){
                players.splice(players.indexOf(narrator), 1);
             }
 
+            // Collects all special roles
+            let specialRoles = [
+                options.getString('1st-role', false),
+                options.getString('2nd-role', false),
+                options.getString('3rd-role', false),
+                options.getString('4th-role', false)
+            ].filter(role => role);
+
             // Check if game is playable
             if (players.length < 5) resolve({type: "private", content: "Es tut mir leid, aber Werwolf macht erst mit mehr als 5 Leuten Spaß!"});
-            if ((werewolfNumber + options.length-2) >= Math.floor(players.length * .75)) resolve({type: "private", content: `Du solltest bei dieser Spieler-Zahl weniger Werwölfe und Spezial-Rollen auswählen!`});
+            if ((werewolfNumber + specialRoles.length) >= Math.floor(players.length * .75)) resolve({type: "private", content: `Du solltest bei dieser Spieler-Zahl weniger Werwölfe und Spezial-Rollen auswählen!`});
 
 
             // Create narrator-text
@@ -92,13 +100,12 @@ function commandCallback(interaction){
             let promiseList = []
 
             // Distribute special-roles
-            if (options.length > 2){
-                options.splice(0, 2);
-                for (let i = 0; i < options.length; i++){
+            if (specialRoles.length > 0){
+                for (let i = 0; i < specialRoles.length; i++){
                     let randomPlayer = players[Math.floor(Math.random() * players.length)];
                     players.splice(players.indexOf(randomPlayer), 1);
-                    content = content + `${options[i].value}: <@${randomPlayer}>\n`;
-                    promiseList.push(sendPrivateMessageToUser(randomPlayer, `Du bist **${options[i].value}**!\n`));
+                    content = content + `${specialRoles[i]}: <@${randomPlayer}>\n`;
+                    promiseList.push(sendPrivateMessageToUser(randomPlayer, `Du bist **${specialRoles[i]}**!\n`));
                 }
                 content = content + `\n`;
             }

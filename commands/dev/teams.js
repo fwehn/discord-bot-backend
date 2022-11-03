@@ -24,27 +24,24 @@ const commandData = {
         },
         {
             name: "channel",
-            description: "Aus welchem Channel willst su ein Team bauen?",
+            description: "Aus welchem Channel willst du ein Team bauen?",
             type: 7,
             required: true
         }
     ]
 };
 
-async function commandCallback(interaction){
-    const {getChannelFromId} = require('../../discord/bot');
-
-    let options = Array.from(interaction.options.data);
-    let channel = getChannelFromId(options[1].value);
-
+function commandCallback(interaction){
     return new Promise((resolve, reject) => {
+        let channel = interaction.options.getChannel('channel', true);
+
         if (channel === null || channel === undefined) reject(new Error('Diesen Channel gibt es nicht auf dem Server!'));
 
         if (channel.type !== 2){
             resolve({type: "private", content: `Wähle bitte einen Voice-Channel aus!`});
         }else{
             let content = `***TEAMS***`;
-            let teamNumber = options[0].value;
+            let teamNumber = interaction.options.getInteger('number', true);
             let players = [ ...channel.members.keys() ];
             let overhang = players.length%teamNumber;
             let playerPerTeam = (players.length-overhang)/teamNumber;
@@ -62,7 +59,7 @@ async function commandCallback(interaction){
                 }
                 content = content.substring(0, content.length - 2);
             }
-            resolve({type: "public", content: content});
+            resolve({type: "private", content: content});
         }
     });
 }
