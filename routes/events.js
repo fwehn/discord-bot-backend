@@ -3,11 +3,9 @@ const router = express.Router();
 const {basicErrorHandler} = require("../utilityFunctions");
 const eventsController = require('./../controller/eventsController');
 
-//TODO return a list of with events and ids
 router.get('/', function(req, res) {
     let serverId = req["serverId"];
-    eventsController.getEvents(serverId).then(console.log);
-    res.status(200).json({"hello": "world"});
+    eventsController.getEvents(serverId).then(events => res.status(200).json(events)).catch(err => basicErrorHandler(res, err));
 });
 
 router.post('/', (req, res) => {

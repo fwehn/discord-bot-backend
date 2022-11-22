@@ -5,7 +5,8 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildVoiceStates
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildScheduledEvents
     ]
 });
 
@@ -79,21 +80,17 @@ function sendPrivateMessageToUser(userId, message){
 }
 
 function getScheduledEvents(guildId){
-    return new Promise((resolve) => {
-        client.guilds.fetch(guildId).then(guild => {
-            guild.scheduledEvents.fetch().then(resolve)
-        })
+    return new Promise((resolve, reject) => {
+        resolve(client.guilds.cache.get(guildId).scheduledEvents.cache);
     });
 }
 
 function createScheduledEvent(guildId, eventData){
-    return client.guilds.cache.get(guildId).scheduledEvents.create(eventData)
+    return client.guilds.cache.get(guildId).scheduledEvents.create(eventData);
 }
 
 function deleteScheduledEvent(guildId, eventId){
-    console.log(typeof eventId)
-
-    return client.guilds.cache.get(guildId).scheduledEvents.delete(eventId)
+    return client.guilds.cache.get(guildId).scheduledEvents.delete(eventId);
 }
 
 module.exports = {

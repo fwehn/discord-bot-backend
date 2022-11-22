@@ -4,8 +4,7 @@ const bot = require('../discord/bot');
 
 router.get('/', function(req, res) {
     let serverList = {};
-
-    let promiseList = []
+    let promiseList = [];
     bot.getServerList().forEach(server => {
         serverList[server["id"]] = {
             name: server["name"]
@@ -16,7 +15,6 @@ router.get('/', function(req, res) {
     Promise.all(promiseList).then(() => {
         res.json(serverList)
     });
-
 });
 
 const commandsRouter = require('./commands');
@@ -30,5 +28,11 @@ router.use('/:serverId/events', (req, res, next) => {
     req["serverId"] = req.params["serverId"];
     next();
 }, eventsRouter);
+
+const drinksRouter = require('./drinks');
+router.use('/:serverId/drinks', (req, res, next) => {
+    req["serverId"] = req.params["serverId"];
+    next();
+}, drinksRouter);
 
 module.exports = router;

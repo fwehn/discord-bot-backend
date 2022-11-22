@@ -3,6 +3,9 @@ const app = express();
 const logger = require('morgan');
 const cors = require('cors');
 
+const db = require('./database');
+db.init().then(console.log).catch(console.error);
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
