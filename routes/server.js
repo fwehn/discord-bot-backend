@@ -17,6 +17,12 @@ router.get('/', function(req, res) {
     });
 });
 
+const rolesRouter = require('./roles');
+router.use('/:serverId/roles', (req, res, next) => {
+    req["serverId"] = req.params["serverId"];
+    next();
+}, rolesRouter);
+
 const commandsRouter = require('./commands');
 router.use('/:serverId/commands', (req, res, next) => {
     req["serverId"] = req.params["serverId"];

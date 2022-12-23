@@ -60,9 +60,9 @@ function commandCallback(interaction){
 
     return new Promise((resolve, reject) => {
         if (sendMessage){
-            axios.post(`http://127.0.0.1:${process.env.PORT}/server/${interaction.guildId}/drinks`, dataObject)
+            axios.post(`http://127.0.0.1:${process.env.PORT}/server/${interaction.guildId}/drinks`, dataObject, {headers: {authorization: process.env.API_PASSWORD}})
                 .then((res) => {
-                    resolve({type: "private", content: res.data["message"]});
+                    resolve({type: "public", content: res.data["message"]});
                 })
                 .catch(reject);
         }else{

@@ -4,20 +4,34 @@ const drinksController = require("../controller/drinksController");
 const {basicErrorHandler} = require("../utilityFunctions");
 
 router.get('/', (req, res) => {
-    //TODO get Data from database and send it back
+    drinksController.getList(req["serverId"])
+        .then(data => {
+            let formatted = {};
 
-    // drinksController.getCurrentListId().then(console.log)
-    drinksController.createDrink("Bier", 0.2, 5, "242732534432006144", "459426513675223044").then(console.log).catch(console.error);
+            for (let i in data){
+                let drink = data[i];
+                let userId = drink["userId"];
 
-    res.status(200).json({hello: "world"});
+                if (!formatted.hasOwnProperty(userId)) formatted[userId] = [];
+
+                formatted[userId].push({
+                    name: drink["name"],
+                    amount: drink["amount"],
+                    proof: drink["proof"],
+                    pure: drink["pure"]
+                });
+            }
+
+            res.status(200).json(formatted);
+        }).catch(err => basicErrorHandler(res, err));
 });
 
 router.post('/', (req, res) => {
-    //TODO write Data to Database and send Funny sentence Back to User
     drinksController.createDrink(req.body["name"], req.body["amount"], req.body["proof"], req.body["userId"], req["serverId"])
-        .then(() => {
-            res.status(200).json({message: "Funny Sentence!"});
-        }).catch(basicErrorHandler);
+        .then((result) => {
+            console.log(result)
+            res.status(200).json({message: result["sentence"] || "Funny Sentence!"});
+        }).catch(err => basicErrorHandler(res, err));
 });
 
 module.exports = router;

@@ -11,6 +11,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
+app.use(function(req, res, next) {
+    if (!req.headers.authorization || req.headers.authorization !== process.env.API_PASSWORD) {
+        return res.status(403).json({ error: 'Wrong credentials!' });
+    }
+    next();
+});
+
 const indexRouter = require('./routes/index');
 const serverRouter = require('./routes/server');
 

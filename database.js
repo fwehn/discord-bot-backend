@@ -22,11 +22,17 @@ function init(){
                     PRIMARY KEY (id),
                     FOREIGN KEY (listId) REFERENCES list(id) ON DELETE CASCADE
                 )`;
+    let sentence = `CREATE TABLE IF NOT EXISTS sentence(
+                        id INT NOT NULL AUTO_INCREMENT,
+                        sentence VARCHAR(256) NOT NULL,
+                        PRIMARY KEY (id)
+                    )`;
 
     return new Promise(async (resolve, reject) => {
         try{
             await sendRequest(list);
             await sendRequest(drink);
+            await sendRequest(sentence);
             resolve("Database initialized!");
         }catch (err) {
             reject(err);

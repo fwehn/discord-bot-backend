@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits} = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, Events} = require('discord.js');
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -11,13 +11,22 @@ const client = new Client({
 });
 
 const commandManager = require('./commandManager');
+const configManager = require('./configManger');
 const commands = commandManager.loadCommands();
 
-client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+client.once(Events.ClientReady, client => {
+    console.log(`Ready! Logged in as ${client.user.tag}`);
 });
 
-client.on('interactionCreate', async interaction => {
+client.on(Events.GuildMemberAdd, member => {
+    let autoRole = configManager.getAutoRole(member.guild.id);
+
+    if (autoRole){
+        member.roles.add(configManager.getAutoRole(member.guild.id)).catch(console.error);
+    }
+});
+
+client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     if (!commands[interaction.commandName]){
@@ -28,18 +37,32 @@ client.on('interactionCreate', async interaction => {
     await handleCommand(interaction);
 });
 
-client.on('guildDelete', guild => {
-    commandManager.deleteServerFromConfigFile(guild.id);
+client.on(Events.GuildDelete, guild => {
+    configManager.deleteServerFromConfigFile(guild.id);
 });
 
 client.login(process.env.TOKEN).catch(console.error);
 
 function registerCommand(guildId, command){
+    console.log(client, client.application)
+
     return client.application.commands.create(command, guildId);
 }
 
 function unregisterCommand(guildId, command){
     return client.application.commands.delete(command, guildId);
+}
+
+function getBotInformation(){
+    return new Promise((resolve, reject) => {
+        try {
+            resolve({
+                username: client.user.username
+            });
+        }catch (e) {
+            reject(e);
+        }
+    })
 }
 
 function getMemberCount(guildId){
@@ -61,6 +84,11 @@ function handleCommand(interaction){
                 case "private":
                     interaction.reply({content: callbackData.content, ephemeral: true});
                     break;
+
+                case "embed":
+                    interaction.reply({embeds: Array.from(callbackData.content, (embed) => new EmbedBuilder(embed).setColor(`#71368A`))});
+                    break;
+
                 default:
                     interaction.reply({content: callbackData.content, ephemeral: true});
             }
@@ -94,5 +122,5 @@ function deleteScheduledEvent(guildId, eventId){
 }
 
 module.exports = {
-    registerCommand, unregisterCommand, getServerList, getMemberCount, sendPrivateMessageToUser, getScheduledEvents, createScheduledEvent, deleteScheduledEvent
+    registerCommand, unregisterCommand, getServerList, getMemberCount, sendPrivateMessageToUser, getScheduledEvents, createScheduledEvent, deleteScheduledEvent, getBotInformation
 }

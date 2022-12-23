@@ -60,7 +60,7 @@ const commandData = {
 };
 
 function commandCallback(interaction){
-    const {sendPrivateMessageToUser} = require('../../discord/bot');
+    const {sendPrivateMessageToUser} = require('../discord/bot');
 
     let options = interaction.options;
     let channel = options.getChannel('channel', true);

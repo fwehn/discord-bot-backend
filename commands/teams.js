@@ -59,7 +59,7 @@ function commandCallback(interaction){
                 }
                 content = content.substring(0, content.length - 2);
             }
-            resolve({type: "private", content: content});
+            resolve({type: "public", content: content});
         }
     });
 }

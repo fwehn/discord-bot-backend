@@ -1,16 +1,17 @@
 const bot = require('../discord/bot');
 const commandManager = require('../discord/commandManager');
+const configManager = require('../discord/configManger');
 
 function getCommandNames(){
     return Object.keys(commandManager.loadCommands());
 }
 
 function activateCommand(guildId, commandData){
-    return bot.registerCommand(guildId, commandData).then(applicationCommand => commandManager.writeCommandIdToConfigFile(guildId, commandData.name, applicationCommand.id));
+    return bot.registerCommand(guildId, commandData).then(applicationCommand => configManager.writeCommandIdToConfigFile(guildId, commandData.name, applicationCommand.id));
 }
 
 function deactivateCommand(guildId, commandData){
-    return bot.unregisterCommand(guildId, commandManager.readCommandIdFromConfigFile(guildId, commandData.name)).then(() => commandManager.deleteIdFromConfigFile(guildId, commandData.name));
+    return bot.unregisterCommand(guildId, configManager.readCommandIdFromConfigFile(guildId, commandData.name)).then(() => configManager.deleteCommandIdFromConfigFile(guildId, commandData.name));
 }
 
 function getCommandData(commandName){
@@ -26,8 +27,8 @@ function getCommandData(commandName){
 function getCommandsFromServer(guildId){
     return new Promise((resolve, reject) => {
         try {
-            let config = commandManager.readConfigFile();
-            resolve(config[guildId] || {});
+            let config = configManager.readConfigFile();
+            resolve(config[guildId]["commands"] || {});
         }catch (err) {
             reject(err);
         }
