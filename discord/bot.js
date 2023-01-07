@@ -103,12 +103,16 @@ function getServerList(){
     return client.guilds.cache;
 }
 
+function getChannelList(guildId){
+    return client.guilds.cache.get(guildId).channels.cache;
+}
+
 function sendPrivateMessageToUser(userId, message){
     return client.users.cache.get(userId).send(message);
 }
 
 function getScheduledEvents(guildId){
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         resolve(client.guilds.cache.get(guildId).scheduledEvents.cache);
     });
 }
@@ -122,5 +126,5 @@ function deleteScheduledEvent(guildId, eventId){
 }
 
 module.exports = {
-    registerCommand, unregisterCommand, getServerList, getMemberCount, sendPrivateMessageToUser, getScheduledEvents, createScheduledEvent, deleteScheduledEvent, getBotInformation
+    registerCommand, unregisterCommand, getServerList, getChannelList, getMemberCount, sendPrivateMessageToUser, getScheduledEvents, createScheduledEvent, deleteScheduledEvent, getBotInformation
 }

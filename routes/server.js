@@ -23,6 +23,12 @@ router.use('/:serverId/roles', (req, res, next) => {
     next();
 }, rolesRouter);
 
+const channelsRouter = require('./channels');
+router.use('/:serverId/channels', (req, res, next) => {
+    req["serverId"] = req.params["serverId"];
+    next();
+}, channelsRouter);
+
 const commandsRouter = require('./commands');
 router.use('/:serverId/commands', (req, res, next) => {
     req["serverId"] = req.params["serverId"];

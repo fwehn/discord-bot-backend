@@ -11,7 +11,7 @@ router.get('/', function(req, res) {
 router.post('/', (req, res) => {
     let serverId = req["serverId"];
 
-    console.log(req["serverId"], req.body);
+    // console.log(req["serverId"], req.body);
     eventsController.createEvent(serverId, req.body)
         .then(() => res.status(201).json({message: "Event created"}))
         .catch(err => basicErrorHandler(res, err));
@@ -20,7 +20,7 @@ router.post('/', (req, res) => {
 router.delete('/:eventId', (req, res) => {
     let serverId = req["serverId"];
     let eventId = req.params["eventId"];
-    console.log(eventId)
+    // console.log(eventId)
     eventsController.deleteEvent(serverId, eventId)
         .then(() => res.status(200).json({message: "Event deleted"}))
         .catch(err => basicErrorHandler(res, err));
